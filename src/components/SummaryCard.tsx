@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   totalTimeSeconds,
   avgPaceSecPerKm,
@@ -23,6 +23,7 @@ const STRATEGY_LABELS: Record<Strategy, string> = {
 };
 
 export default function SummaryCard({ segments, targetSec, unit, strategy, segmentElevGain }: Props) {
+  const [copied, setCopied] = useState(false);
   const projectedSec = totalTimeSeconds(segments);
   const avgPace = avgPaceSecPerKm(segments);
   const targetPace = targetSec / MARATHON_KM;
@@ -76,7 +77,10 @@ export default function SummaryCard({ segments, targetSec, unit, strategy, segme
           }`
       ),
     ];
-    navigator.clipboard.writeText(lines.join('\n')).catch(() => {});
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
   }, [segments, targetSec, projectedSec, avgPace, unit, unitLabel, strategy, splitRows, hasElev, totalElevGain, segmentElevGain]);
 
   const stats = [
@@ -95,9 +99,13 @@ export default function SummaryCard({ segments, targetSec, unit, strategy, segme
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Race Summary</p>
         <button
           onClick={copyText}
-          className="text-xs font-semibold text-slate-400 hover:text-orange-400 border border-border hover:border-orange-500/40 px-3 py-1.5 rounded-lg transition-all active:scale-95"
+          className={`text-xs font-semibold border px-3 py-1.5 rounded-lg transition-all active:scale-95 ${
+            copied
+              ? 'text-green-400 border-green-500/40 bg-green-500/10'
+              : 'text-slate-400 hover:text-orange-400 border-border hover:border-orange-500/40'
+          }`}
         >
-          Copy plan
+          {copied ? 'Copied!' : 'Copy plan'}
         </button>
       </div>
 

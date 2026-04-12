@@ -1,15 +1,6 @@
 import { useState, useEffect } from 'react';
 import { formatDuration, parseDurationToSec } from '../lib/paceUtils';
-
-const QUOTES = [
-  { text: 'Only the disciplined ones are free in life.', attr: 'Eliud Kipchoge — 2× Olympic marathon gold' },
-  { text: "Don't dream of winning, train for it.", attr: 'Mo Farah — 4× Olympic gold' },
-  { text: 'You have to believe in yourself when no one else does.', attr: 'Haile Gebrselassie — 2× Olympic gold, marathon WR' },
-  { text: "The miracle isn't that I finished. The miracle is that I had the courage to start.", attr: 'John Bingham — popularised beginner marathoning' },
-  { text: 'Run often. Run long. But never outrun your joy of running.', attr: 'Julie Isphording — Olympian, Masters WR holder' },
-  { text: "It's supposed to be hard. If it wasn't hard, everyone would do it.", attr: 'Kara Goucher — World Championship medallist' },
-  { text: 'The will to win means nothing without the will to prepare.', attr: 'Juma Ikangaa — NYC Marathon winner' },
-];
+import { QUOTES } from '../lib/quotes';
 
 interface Props {
   targetSec: number;
@@ -20,6 +11,7 @@ interface Props {
 export default function TargetTime({ targetSec, projectedSec, onChange }: Props) {
   const [editing, setEditing] = useState(false);
   const [inputVal, setInputVal] = useState('');
+  const [inputError, setInputError] = useState(false);
   const [quoteIdx, setQuoteIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
 
   function nextQuote() {
@@ -48,18 +40,27 @@ export default function TargetTime({ targetSec, projectedSec, onChange }: Props)
 
   function startEditing() {
     setInputVal(formatDuration(targetSec));
+    setInputError(false);
     setEditing(true);
   }
 
   function commitEdit() {
     const parsed = parseDurationToSec(inputVal);
-    if (parsed && parsed >= 7200 && parsed <= 25200) onChange(parsed);
-    setEditing(false);
+    if (parsed !== null && parsed >= 7200 && parsed <= 25200) {
+      onChange(parsed);
+      setInputError(false);
+      setEditing(false);
+    } else {
+      setInputError(true);
+    }
   }
 
   function handleKey(e: React.KeyboardEvent) {
     if (e.key === 'Enter') commitEdit();
-    if (e.key === 'Escape') setEditing(false);
+    if (e.key === 'Escape') {
+      setInputError(false);
+      setEditing(false);
+    }
   }
 
   useEffect(() => {
@@ -77,20 +78,30 @@ export default function TargetTime({ targetSec, projectedSec, onChange }: Props)
 
           <div className="flex items-end gap-3">
             {editing ? (
-              <input
-                autoFocus
-                value={inputVal}
-                onChange={e => setInputVal(e.target.value)}
-                onBlur={commitEdit}
-                onKeyDown={handleKey}
-                className="text-3xl font-bold font-mono bg-transparent text-white outline-none border-b-2 border-orange-500 w-36"
-                placeholder="H:MM:SS"
-              />
+              <div className="flex flex-col gap-0.5">
+                <input
+                  autoFocus
+                  value={inputVal}
+                  onChange={e => { setInputVal(e.target.value); setInputError(false); }}
+                  onBlur={commitEdit}
+                  onKeyDown={handleKey}
+                  className={`text-3xl font-bold font-mono bg-transparent text-white outline-none border-b-2 w-36 ${
+                    inputError ? 'border-red-500' : 'border-orange-500'
+                  }`}
+                  placeholder="H:MM:SS"
+                  aria-label="Target finish time"
+                  aria-invalid={inputError}
+                />
+                {inputError && (
+                  <span className="text-[10px] text-red-400">Enter a time between 2:00:00 and 7:00:00</span>
+                )}
+              </div>
             ) : (
               <button
                 onClick={startEditing}
                 className="text-3xl font-bold font-mono text-white hover:text-orange-400 transition-colors"
                 title="Click to edit"
+                aria-label={`Target finish time: ${formatDuration(targetSec)}. Click to edit.`}
               >
                 {formatDuration(targetSec)}
               </button>
@@ -137,6 +148,7 @@ export default function TargetTime({ targetSec, projectedSec, onChange }: Props)
             <button
               onClick={nextQuote}
               title="New quote"
+              aria-label="Show next quote"
               className="text-slate-600 hover:text-orange-400 transition-colors text-base leading-none shrink-0"
             >
               ↻

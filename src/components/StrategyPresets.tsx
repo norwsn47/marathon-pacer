@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Strategy, NegativePct } from '../lib/types';
 
 interface Props {
@@ -79,6 +79,15 @@ function NegativeSplitPopup({ onClose }: { onClose: () => void }) {
 
 export default function StrategyPresets({ strategy, negativePct, onSelect, onNegativePctChange }: Props) {
   const [showInfo, setShowInfo] = useState(false);
+
+  useEffect(() => {
+    if (!showInfo) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShowInfo(false);
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [showInfo]);
 
   const isActive = (p: typeof PRESETS[number]) =>
     p.key === 'even' ? strategy === 'even' : strategy === 'negative' && negativePct === p.pct;

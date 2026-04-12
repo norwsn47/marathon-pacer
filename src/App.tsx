@@ -21,7 +21,6 @@ import PaceChart from './components/PaceChart';
 import PaceSliders from './components/PaceSliders';
 import SummaryCard from './components/SummaryCard';
 
-
 const DEFAULT_TARGET = 3 * 3600;
 
 export default function App() {
@@ -120,12 +119,12 @@ export default function App() {
     setGpxFilename(filename);
   }, []);
 
-  const handleGpxClear = useCallback(() => {
-    setGpxPoints([]);
-    setGpxFilename('');
-  }, []);
-
-  const isOldUrl = typeof window !== 'undefined' && window.location.hostname !== 'pacer.outbuild.uk';
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  const isOldUrl =
+    hostname !== '' &&
+    hostname !== 'pacer.outbuild.uk' &&
+    hostname !== 'localhost' &&
+    !hostname.endsWith('.pages.dev');
 
   return (
     <div className="min-h-screen bg-[#0d0d12] text-slate-100 font-sans">
@@ -162,7 +161,6 @@ export default function App() {
             segmentElevGain={segmentElevGain}
             elevationPoints={elevationPoints}
             onGpxLoad={handleGpxLoad}
-            onGpxClear={handleGpxClear}
             gpxFilename={gpxFilename}
             totalElevGain={totalElevGain}
           />

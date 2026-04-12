@@ -29,30 +29,37 @@ function smooth(points: GpxPoint[], windowSize = 9): GpxPoint[] {
 
 export function parseGpx(text: string): GpxPoint[] {
   const doc = new DOMParser().parseFromString(text, 'application/xml');
+
+  // DOMParser signals XML errors via a <parsererror> element rather than throwing
+  if (doc.querySelector('parsererror')) return [];
+
   const trkpts = Array.from(doc.querySelectorAll('trkpt, rtept'));
   if (!trkpts.length) return [];
 
   let cumDist = 0;
   const raw: GpxPoint[] = [];
+  let prevLat: number | null = null;
+  let prevLon: number | null = null;
 
-  for (let i = 0; i < trkpts.length; i++) {
-    const pt = trkpts[i];
-    const lat = parseFloat(pt.getAttribute('lat') ?? '0');
-    const lon = parseFloat(pt.getAttribute('lon') ?? '0');
-    const ele = parseFloat(pt.querySelector('ele')?.textContent ?? '0');
+  for (const pt of trkpts) {
+    const lat = parseFloat(pt.getAttribute('lat') ?? '');
+    const lon = parseFloat(pt.getAttribute('lon') ?? '');
+    // Skip points with missing or invalid coordinates
+    if (!isFinite(lat) || !isFinite(lon)) continue;
 
-    if (i > 0) {
-      const prev = trkpts[i - 1];
-      cumDist += haversineKm(
-        parseFloat(prev.getAttribute('lat') ?? '0'),
-        parseFloat(prev.getAttribute('lon') ?? '0'),
-        lat,
-        lon
-      );
+    const eleText = pt.querySelector('ele')?.textContent ?? '';
+    const ele = isFinite(parseFloat(eleText)) ? parseFloat(eleText) : 0;
+
+    if (prevLat !== null && prevLon !== null) {
+      cumDist += haversineKm(prevLat, prevLon, lat, lon);
     }
+
     raw.push({ distKm: cumDist, ele });
+    prevLat = lat;
+    prevLon = lon;
   }
 
+  if (!raw.length) return [];
   return smooth(raw);
 }
 
@@ -66,6 +73,8 @@ export function sampleElevationProfile(points: GpxPoint[], numSamples = 200): El
   if (!points.length) return [];
   const totalDist = points[points.length - 1].distKm;
   if (totalDist === 0) return [];
+  if (numSamples <= 1) return [{ pct: 0, ele: points[0].ele }];
+
   const out: ElevSample[] = [];
   for (let i = 0; i < numSamples; i++) {
     const pct = i / (numSamples - 1);
@@ -82,26 +91,13 @@ function interpolateEle(points: GpxPoint[], targetDist: number): number {
   if (targetDist >= last.distKm) return last.ele;
   for (let i = 0; i < points.length - 1; i++) {
     if (points[i].distKm <= targetDist && points[i + 1].distKm >= targetDist) {
-      const t = (targetDist - points[i].distKm) / (points[i + 1].distKm - points[i].distKm);
+      const span = points[i + 1].distKm - points[i].distKm;
+      if (span === 0) return points[i].ele;
+      const t = (targetDist - points[i].distKm) / span;
       return points[i].ele + t * (points[i + 1].ele - points[i].ele);
     }
   }
   return last.ele;
-}
-
-// Sample absolute elevation at the midpoint of each segment, scaled to GPX track length
-export function sampleSegmentElevation(points: GpxPoint[], segments: Segment[]): number[] {
-  if (!points.length) return segments.map(() => 0);
-  const totalGpxKm = points[points.length - 1].distKm;
-  const totalSegKm = segments.reduce((s, seg) => s + seg.distanceKm, 0);
-
-  let cumKm = 0;
-  return segments.map((seg) => {
-    const midpointRace = cumKm + seg.distanceKm / 2;
-    cumKm += seg.distanceKm;
-    const scaledDist = (midpointRace / totalSegKm) * totalGpxKm;
-    return Math.round(interpolateEle(points, scaledDist));
-  });
 }
 
 export function getSegmentElevationGain(points: GpxPoint[], segments: Segment[]): number[] {

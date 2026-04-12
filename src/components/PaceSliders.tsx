@@ -1,5 +1,4 @@
-import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace, getAutoBalanceIdxs } from '../lib/paceUtils';
-void getAutoBalanceIdxs; // imported for type-consistency; used via prop
+import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace } from '../lib/paceUtils';
 import type { Segment, Strategy, Unit } from '../lib/types';
 
 const SLIDER_STEP = 1;
@@ -38,6 +37,8 @@ function SliderRow({
 }) {
   const pace = seg.paceSecPerKm;
   const diff = pace - targetPaceSec;
+  const splitSec = Math.round(seg.paceSecPerKm * seg.distanceKm);
+  const splitTime = `${Math.floor(splitSec / 60)}:${(splitSec % 60).toString().padStart(2, '0')}`;
   const pct = Math.max(0, Math.min(100, ((pace - paceMin) / (paceMax - paceMin)) * 100));
   const normalBackground = `linear-gradient(to right, #f97316 ${pct}%, #2a2a3d ${pct}%)`;
 
@@ -97,7 +98,7 @@ function SliderRow({
             {formatPace(pace, unit)}
           </span>
         </div>
-        <span className="text-[9px] font-mono text-slate-500">{(() => { const s = Math.round(seg.paceSecPerKm * seg.distanceKm); return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`; })()}</span>
+        <span className="text-[9px] font-mono text-slate-500">{splitTime}</span>
       </div>
 
       {locked && (

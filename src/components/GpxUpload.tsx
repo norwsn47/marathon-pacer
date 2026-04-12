@@ -29,6 +29,7 @@ export default function GpxUpload({ onLoad, onClear, filename, totalGain }: Prop
       }
       onLoad(points, file.name);
     };
+    reader.onerror = () => setError('Failed to read file');
     reader.readAsText(file);
   }
 
@@ -69,6 +70,9 @@ export default function GpxUpload({ onLoad, onClear, filename, totalGain }: Prop
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label="Upload GPX route file"
       className={`rounded-2xl border-2 border-dashed transition-colors cursor-pointer ${
         dragging ? 'border-cyan-500 bg-cyan-500/5' : 'border-border bg-surface hover:border-slate-600'
       }`}
@@ -76,6 +80,7 @@ export default function GpxUpload({ onLoad, onClear, filename, totalGain }: Prop
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click(); } }}
     >
       <div className="flex items-center gap-3 px-4 py-3.5">
         <span className="text-xl shrink-0">⛰️</span>

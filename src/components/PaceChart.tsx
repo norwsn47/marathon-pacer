@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import {
   ComposedChart,
   XAxis,
@@ -19,7 +19,6 @@ interface Props {
   segmentElevGain?: number[];
   elevationPoints?: ElevSample[];
   onGpxLoad: (points: GpxPoint[], filename: string) => void;
-  onGpxClear?: () => void;
   gpxFilename: string;
   totalElevGain: number;
 }
@@ -300,11 +299,15 @@ export default function PaceChart({ segments, targetSec, unit, segmentElevGain, 
       if (!pts.length) { setGpxError('No track points found'); return; }
       onGpxLoad(pts, file.name);
     };
+    reader.onerror = () => setGpxError('Failed to read file');
     reader.readAsText(file);
   }
 
-  // Only used for axis domain — no longer used for tooltip payload
-  const data = getChartData(segments, targetSec, unit, segmentElevGain);
+  // Provides recharts with internal data structures; paceDomain is computed directly from segments
+  const data = useMemo(
+    () => getChartData(segments, targetSec, unit, segmentElevGain),
+    [segments, targetSec, unit, segmentElevGain]
+  );
   const targetPaceMin = targetSec / MARATHON_KM / 60;
   const hasElev = !!(elevationPoints?.length);
 
