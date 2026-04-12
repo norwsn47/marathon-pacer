@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Customized,
 } from 'recharts';
-import { getChartData, formatPace, MARATHON_KM } from '../lib/paceUtils';
+import { getChartData, formatPace, formatDuration, totalTimeSeconds, MARATHON_KM } from '../lib/paceUtils';
 import { parseGpx, type GpxPoint, type ElevSample } from '../lib/gpxParser';
 import type { Segment, Unit } from '../lib/types';
 
@@ -359,6 +359,12 @@ export default function PaceChart({ segments, targetSec, unit, segmentElevGain, 
             onChange={e => { const f = e.target.files?.[0]; if (f) handleGpxFile(f); e.target.value = ''; }} />
           {gpxError && <span className="text-[10px] text-red-400">{gpxError}</span>}
         </div>
+        {/* Projected finish time */}
+        <div className="flex flex-col items-end shrink-0">
+          <span className="text-[9px] text-slate-500 uppercase tracking-widest">Projected</span>
+          <span className="text-[13px] font-mono font-bold text-white">{formatDuration(totalTimeSeconds(segments))}</span>
+        </div>
+
         {/* Key hover popup */}
         <div className="relative shrink-0"
           onMouseEnter={() => setShowKey(true)}

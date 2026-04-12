@@ -1,4 +1,4 @@
-import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace, getAutoBalanceIdxs } from '../lib/paceUtils';
+import { getPaceBounds, formatPace, formatDuration, MARATHON_KM, calcAutoBalancePace, getAutoBalanceIdxs } from '../lib/paceUtils';
 void getAutoBalanceIdxs; // imported for type-consistency; used via prop
 import type { Segment, Strategy, Unit } from '../lib/types';
 
@@ -25,6 +25,7 @@ function SliderRow({
   elevGain,
   paceMin,
   paceMax,
+  cumTimeSec,
   onChange,
 }: {
   seg: Segment;
@@ -34,6 +35,7 @@ function SliderRow({
   elevGain?: number;
   paceMin: number;
   paceMax: number;
+  cumTimeSec: number;
   onChange: (id: number, val: number) => void;
 }) {
   const pace = seg.paceSecPerKm;
@@ -86,15 +88,18 @@ function SliderRow({
         />
       )}
 
-      {/* Pace value + dot */}
-      <div className="flex items-center gap-1.5 shrink-0 w-20 justify-end">
-        {locked && (
-          <span className="text-[9px] text-cyan-500 font-bold tracking-tight mr-0.5">AUTO</span>
-        )}
-        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />
-        <span className={`text-[12px] font-bold font-mono ${locked ? 'text-cyan-300' : 'text-white'}`}>
-          {formatPace(pace, unit)}
-        </span>
+      {/* Pace value + dot + cumulative time */}
+      <div className="flex flex-col items-end shrink-0 w-20">
+        <div className="flex items-center gap-1.5">
+          {locked && (
+            <span className="text-[9px] text-cyan-500 font-bold tracking-tight mr-0.5">AUTO</span>
+          )}
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />
+          <span className={`text-[12px] font-bold font-mono ${locked ? 'text-cyan-300' : 'text-white'}`}>
+            {formatPace(pace, unit)}
+          </span>
+        </div>
+        <span className="text-[9px] font-mono text-slate-500">{formatDuration(cumTimeSec)}</span>
       </div>
 
       {locked && (
@@ -193,19 +198,30 @@ export default function PaceSliders({
         </button>
       )}
 
-      {segments.map((seg, i) => (
-        <SliderRow
-          key={seg.id}
-          seg={seg}
-          targetPaceSec={targetPaceSec}
-          unit={unit}
-          locked={isCustom && autoBalance && idxSet.has(i)}
-          elevGain={segmentElevGain?.[i]}
-          paceMin={paceMin}
-          paceMax={paceMax}
-          onChange={onChange}
-        />
-      ))}
+      {segments.reduce<{ els: React.ReactElement[]; cum: number }>(
+        ({ els, cum }, seg, i) => {
+          const newCum = cum + seg.paceSecPerKm * seg.distanceKm;
+          return {
+            els: [
+              ...els,
+              <SliderRow
+                key={seg.id}
+                seg={seg}
+                targetPaceSec={targetPaceSec}
+                unit={unit}
+                locked={isCustom && autoBalance && idxSet.has(i)}
+                elevGain={segmentElevGain?.[i]}
+                paceMin={paceMin}
+                paceMax={paceMax}
+                cumTimeSec={newCum}
+                onChange={onChange}
+              />,
+            ],
+            cum: newCum,
+          };
+        },
+        { els: [], cum: 0 }
+      ).els}
     </div>
   );
 }
