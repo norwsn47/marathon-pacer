@@ -345,7 +345,7 @@ export default function PaceChart({ segments, targetSec, unit, segmentElevGain, 
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest shrink-0">Pace Plan</p>
           {/* Route name + elevation */}
           {gpxFilename && (
-            <span className="text-[10px] font-semibold text-cyan-400 font-mono truncate max-w-[130px] sm:max-w-none">
+            <span className="text-[10px] font-semibold text-slate-300 font-mono truncate max-w-[130px] sm:max-w-none">
               ⛰ {gpxFilename} ↑{totalElevGain}m
             </span>
           )}
@@ -371,7 +371,7 @@ export default function PaceChart({ segments, targetSec, unit, segmentElevGain, 
             ?
           </button>
           <div className="flex flex-col items-end">
-            <span className="text-[9px] text-slate-500 uppercase tracking-widest">Projected</span>
+            <span className="text-[11px] text-slate-400 uppercase tracking-widest">Projected</span>
             <span className="text-[17px] font-mono font-bold text-white leading-tight">{formatDuration(totalTimeSeconds(segments))}</span>
           </div>
           {showKey && (

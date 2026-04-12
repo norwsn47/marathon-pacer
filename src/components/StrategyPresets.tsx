@@ -96,7 +96,7 @@ export default function StrategyPresets({ strategy, negativePct, onSelect, onNeg
     <div className="bg-surface rounded-2xl p-4 border border-border">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-          Race Strategy
+          Race Strategy Presets
         </p>
         <button
           onClick={() => setShowInfo(true)}

@@ -56,7 +56,7 @@ function SliderRow({
       {/* Segment label */}
       <span className="text-[11px] font-semibold shrink-0 w-16" style={{ color: locked ? '#22d3ee' : '#64748b' }}>
         {seg.label}
-        <span className="text-[9px] ml-0.5" style={{ color: locked ? '#0891b2' : '#374151' }}>
+        <span className="text-[10px] ml-0.5" style={{ color: locked ? '#22d3ee' : '#94a3b8' }}>
           {unit === 'km' ? 'km' : 'mi'}
         </span>
       </span>
@@ -91,14 +91,14 @@ function SliderRow({
       <div className="flex flex-col items-end shrink-0 w-20">
         <div className="flex items-center gap-1.5">
           {locked && (
-            <span className="text-[9px] text-cyan-500 font-bold tracking-tight mr-0.5">AUTO</span>
+            <span className="text-[10px] text-cyan-400 font-bold tracking-tight mr-0.5">AUTO</span>
           )}
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />
           <span className={`text-[12px] font-bold font-mono ${locked ? 'text-cyan-300' : 'text-white'}`}>
             {formatPace(pace, unit)}
           </span>
         </div>
-        <span className="text-[9px] font-mono text-slate-500">{splitTime}</span>
+        <span className="text-[11px] font-mono text-white/60">{splitTime}</span>
       </div>
 
       {locked && (
@@ -169,7 +169,7 @@ export default function PaceSliders({
               <span className="font-normal text-[10px] ml-1 opacity-70">
                 to hit target
               </span>
-              <span className="font-normal text-[9px] ml-1 opacity-40">({abSeg?.label}…)</span>
+              <span className="font-normal text-[10px] ml-1 opacity-50">({abSeg?.label}…)</span>
             </span>
           </span>
           <span className="flex items-center gap-2">

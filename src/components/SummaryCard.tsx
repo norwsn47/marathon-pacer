@@ -143,31 +143,31 @@ export default function SummaryCard({ segments, targetSec, unit, strategy, segme
         <table className="w-full text-xs">
           <thead>
             <tr className="text-slate-600 uppercase text-[10px] tracking-wider">
-              <th className="text-left pb-2 font-semibold">Split</th>
-              <th className="text-right pb-2 font-semibold">Pace</th>
-              {hasElev && <th className="text-right pb-2 font-semibold text-cyan-700">Elev ↑</th>}
-              <th className="text-right pb-2 font-semibold">Time</th>
-              <th className="text-right pb-2 font-semibold">Cumulative</th>
-              <th className="text-right pb-2 font-semibold">vs target</th>
+              <th className="text-left pb-2 font-semibold whitespace-nowrap">Split</th>
+              <th className="text-right pb-2 font-semibold whitespace-nowrap">Pace</th>
+              {hasElev && <th className="text-right pb-2 font-semibold whitespace-nowrap text-cyan-700">Elev ↑</th>}
+              <th className="text-right pb-2 font-semibold whitespace-nowrap">Splits</th>
+              <th className="text-right pb-2 font-semibold whitespace-nowrap">Total</th>
+              <th className="text-right pb-2 w-8" title="vs target">△</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {splitRows.map((row, i) => (
               <tr key={i} className="hover:bg-surface-2 transition-colors">
-                <td className="py-2 text-slate-400 font-medium">
+                <td className="py-2 text-slate-400 font-medium whitespace-nowrap">
                   {row.label}
-                  <span className="text-slate-600 ml-0.5 text-[10px]">{unitLabel}</span>
+                  <span className="text-slate-400 ml-0.5 text-[11px]">{unitLabel}</span>
                 </td>
-                <td className="py-2 text-right font-mono text-white font-semibold">{row.pace}</td>
+                <td className="py-2 text-right font-mono text-white font-semibold whitespace-nowrap">{row.pace}</td>
                 {hasElev && (
-                  <td className="py-2 text-right font-mono text-cyan-400 font-semibold text-[11px]">
+                  <td className="py-2 text-right font-mono text-cyan-400 font-semibold text-[11px] whitespace-nowrap">
                     {row.elevGain ? `↑${row.elevGain}m` : '—'}
                   </td>
                 )}
-                <td className="py-2 text-right font-mono text-slate-400">{row.segTime}</td>
-                <td className="py-2 text-right font-mono text-slate-300">{row.split}</td>
+                <td className="py-2 text-right font-mono text-slate-400 whitespace-nowrap">{row.segTime}</td>
+                <td className="py-2 text-right font-mono text-slate-300 whitespace-nowrap">{row.split}</td>
                 <td
-                  className={`py-2 text-right font-mono text-xs font-semibold ${
+                  className={`py-2 text-right font-mono text-xs font-semibold whitespace-nowrap w-8 ${
                     Math.abs(row.delta) < 5
                       ? 'text-slate-500'
                       : row.delta < 0
