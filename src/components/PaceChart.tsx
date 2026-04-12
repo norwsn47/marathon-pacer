@@ -359,20 +359,18 @@ export default function PaceChart({ segments, targetSec, unit, segmentElevGain, 
             onChange={e => { const f = e.target.files?.[0]; if (f) handleGpxFile(f); e.target.value = ''; }} />
           {gpxError && <span className="text-[10px] text-red-400">{gpxError}</span>}
         </div>
-        {/* Projected finish time */}
-        <div className="flex flex-col items-end shrink-0">
-          <span className="text-[9px] text-slate-500 uppercase tracking-widest">Projected</span>
-          <span className="text-[13px] font-mono font-bold text-white">{formatDuration(totalTimeSeconds(segments))}</span>
-        </div>
-
-        {/* Key hover popup */}
-        <div className="relative shrink-0"
+        {/* Key hover popup + projected time below */}
+        <div className="relative shrink-0 flex flex-col items-end gap-1.5"
           onMouseEnter={() => setShowKey(true)}
           onMouseLeave={() => setShowKey(false)}
         >
           <button className="w-4 h-4 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-400 hover:text-white text-[10px] font-bold flex items-center justify-center transition-colors">
             ?
           </button>
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] text-slate-500 uppercase tracking-widest">Projected</span>
+            <span className="text-[17px] font-mono font-bold text-white leading-tight">{formatDuration(totalTimeSeconds(segments))}</span>
+          </div>
           {showKey && (
             <div className="absolute right-0 top-6 z-50 bg-[#1a1a26] border border-[#2a2a3d] rounded-xl shadow-xl p-3 flex flex-col gap-2 min-w-[130px]">
               <span className="flex items-center gap-2 text-[10px] text-slate-400">

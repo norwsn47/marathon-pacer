@@ -1,4 +1,4 @@
-import { getPaceBounds, formatPace, formatDuration, MARATHON_KM, calcAutoBalancePace, getAutoBalanceIdxs } from '../lib/paceUtils';
+import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace, getAutoBalanceIdxs } from '../lib/paceUtils';
 void getAutoBalanceIdxs; // imported for type-consistency; used via prop
 import type { Segment, Strategy, Unit } from '../lib/types';
 
@@ -25,7 +25,6 @@ function SliderRow({
   elevGain,
   paceMin,
   paceMax,
-  cumTimeSec,
   onChange,
 }: {
   seg: Segment;
@@ -35,7 +34,6 @@ function SliderRow({
   elevGain?: number;
   paceMin: number;
   paceMax: number;
-  cumTimeSec: number;
   onChange: (id: number, val: number) => void;
 }) {
   const pace = seg.paceSecPerKm;
@@ -99,7 +97,7 @@ function SliderRow({
             {formatPace(pace, unit)}
           </span>
         </div>
-        <span className="text-[9px] font-mono text-slate-500">{formatDuration(cumTimeSec)}</span>
+        <span className="text-[9px] font-mono text-slate-500">{(() => { const s = Math.round(seg.paceSecPerKm * seg.distanceKm); return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`; })()}</span>
       </div>
 
       {locked && (
@@ -198,30 +196,19 @@ export default function PaceSliders({
         </button>
       )}
 
-      {segments.reduce<{ els: React.ReactElement[]; cum: number }>(
-        ({ els, cum }, seg, i) => {
-          const newCum = cum + seg.paceSecPerKm * seg.distanceKm;
-          return {
-            els: [
-              ...els,
-              <SliderRow
-                key={seg.id}
-                seg={seg}
-                targetPaceSec={targetPaceSec}
-                unit={unit}
-                locked={isCustom && autoBalance && idxSet.has(i)}
-                elevGain={segmentElevGain?.[i]}
-                paceMin={paceMin}
-                paceMax={paceMax}
-                cumTimeSec={newCum}
-                onChange={onChange}
-              />,
-            ],
-            cum: newCum,
-          };
-        },
-        { els: [], cum: 0 }
-      ).els}
+      {segments.map((seg, i) => (
+        <SliderRow
+          key={seg.id}
+          seg={seg}
+          targetPaceSec={targetPaceSec}
+          unit={unit}
+          locked={isCustom && autoBalance && idxSet.has(i)}
+          elevGain={segmentElevGain?.[i]}
+          paceMin={paceMin}
+          paceMax={paceMax}
+          onChange={onChange}
+        />
+      ))}
     </div>
   );
 }
