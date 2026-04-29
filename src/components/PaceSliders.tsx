@@ -1,4 +1,5 @@
-import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace } from '../lib/paceUtils';
+import { useState } from 'react';
+import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace, KM_PER_MILE } from '../lib/paceUtils';
 import type { Segment, Strategy, Unit } from '../lib/types';
 
 const SLIDER_STEP = 1;
@@ -35,6 +36,9 @@ function SliderRow({
   paceMax: number;
   onChange: (id: number, val: number) => void;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [inputVal, setInputVal] = useState('');
+
   const pace = seg.paceSecPerKm;
   const diff = pace - targetPaceSec;
   const splitSec = Math.round(seg.paceSecPerKm * seg.distanceKm);
@@ -49,6 +53,31 @@ function SliderRow({
     : diff < 0
     ? '#4ade80'
     : '#f97316';
+
+  const startEdit = () => {
+    setInputVal(formatPace(pace, unit));
+    setEditing(true);
+  };
+
+  const commitEdit = () => {
+    const parts = inputVal.trim().split(':');
+    if (parts.length === 2) {
+      const mins = parseInt(parts[0], 10);
+      const secs = parseInt(parts[1], 10);
+      if (!isNaN(mins) && !isNaN(secs) && secs < 60) {
+        const secInUnit = mins * 60 + secs;
+        const secPerKm = unit === 'km' ? secInUnit : secInUnit / KM_PER_MILE;
+        const clamped = Math.round(Math.max(paceMin, Math.min(paceMax, secPerKm)));
+        onChange(seg.id, clamped);
+      }
+    }
+    setEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') commitEdit();
+    if (e.key === 'Escape') setEditing(false);
+  };
 
   return (
     <div className={`flex flex-col border-b border-border last:border-0 ${locked ? 'opacity-90' : ''}`}>
@@ -94,9 +123,26 @@ function SliderRow({
             <span className="text-[10px] text-cyan-400 font-bold tracking-tight mr-0.5">AUTO</span>
           )}
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />
-          <span className={`text-[12px] font-bold font-mono ${locked ? 'text-cyan-300' : 'text-white'}`}>
-            {formatPace(pace, unit)}
-          </span>
+          {editing ? (
+            <input
+              type="text"
+              value={inputVal}
+              onChange={e => setInputVal(e.target.value)}
+              onBlur={commitEdit}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              className="w-14 text-[12px] font-bold font-mono text-white bg-transparent border-b border-orange-400 text-right outline-none"
+              aria-label={`Edit pace for ${seg.label}`}
+            />
+          ) : (
+            <span
+              className={`text-[12px] font-bold font-mono ${locked ? 'text-cyan-300' : 'text-white cursor-text hover:text-orange-300 transition-colors'}`}
+              onClick={!locked ? startEdit : undefined}
+              title={!locked ? 'Click to type a pace' : undefined}
+            >
+              {formatPace(pace, unit)}
+            </span>
+          )}
         </div>
         <span className="text-[11px] font-mono text-white/60">{splitTime}</span>
       </div>

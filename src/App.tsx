@@ -27,7 +27,7 @@ export default function App() {
   const [targetSec, setTargetSec] = useState(DEFAULT_TARGET);
   const [unit, setUnit] = useState<Unit>('km');
   const [strategy, setStrategy] = useState<Strategy>('even');
-  const [negativePct, setNegativePct] = useState<NegativePct>(3);
+  const [negativePct, setNegativePct] = useState<NegativePct>(1);
   const [segments, setSegments] = useState<Segment[]>(() =>
     generateSegments(DEFAULT_TARGET, 'even', 'km')
   );

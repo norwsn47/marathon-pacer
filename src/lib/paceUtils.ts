@@ -26,7 +26,7 @@ function segmentLabel(index: number, unit: Unit, total: number): string {
   }
 }
 
-export function generateSegments(targetSec: number, strategy: Strategy, unit: Unit, negativePct: NegativePct = 3): Segment[] {
+export function generateSegments(targetSec: number, strategy: Strategy, unit: Unit, negativePct: NegativePct = 1): Segment[] {
   const distances = getSegmentDistancesKm(unit);
   const n = distances.length;
   const avgPace = targetSec / MARATHON_KM;

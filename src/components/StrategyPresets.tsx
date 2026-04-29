@@ -10,9 +10,9 @@ interface Props {
 
 const PRESETS: { key: Strategy; pct: NegativePct | null; emoji: string | null; label: string; desc: string }[] = [
   { key: 'even',     pct: null, emoji: '➖', label: 'Even Split', desc: 'Same pace throughout' },
-  { key: 'negative', pct: 5,    emoji: '📈', label: '-5%',        desc: 'Bold start deviation' },
-  { key: 'negative', pct: 3,    emoji: '📈', label: '-3%',        desc: 'Moderate progression' },
-  { key: 'negative', pct: 1,    emoji: '📈', label: '-1%',        desc: 'Gentle progression'   },
+  { key: 'negative', pct: 2,    emoji: '📈', label: '-2%',        desc: 'Bold progression'     },
+  { key: 'negative', pct: 1,    emoji: '📈', label: '-1%',        desc: 'Moderate progression' },
+  { key: 'negative', pct: 0.5,  emoji: '📈', label: '-0.5%',      desc: 'Gentle progression'   },
 ];
 
 const NEGATIVE_SPLIT_INFO = [
