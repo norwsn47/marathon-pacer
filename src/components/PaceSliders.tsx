@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getPaceBounds, formatPace, MARATHON_KM, calcAutoBalancePace, KM_PER_MILE } from '../lib/paceUtils';
+import { getPaceBounds, formatPace, formatDuration, MARATHON_KM, calcAutoBalancePace, KM_PER_MILE } from '../lib/paceUtils';
 import type { Segment, Strategy, Unit } from '../lib/types';
 
 const SLIDER_STEP = 1;
@@ -177,6 +177,17 @@ export default function PaceSliders({
   const { min: paceMin, max: paceMax } = getPaceBounds(targetSec);
   const idxSet = new Set(autoBalanceIdxs);
 
+  // HM split from display segments
+  const HM_KM = 21.0975;
+  let hmSec = 0;
+  let hmCumKm = 0;
+  for (const seg of segments) {
+    if (hmCumKm >= HM_KM) break;
+    const contrib = Math.min(HM_KM - hmCumKm, seg.distanceKm);
+    hmSec += seg.paceSecPerKm * contrib;
+    hmCumKm += seg.distanceKm;
+  }
+
   // Check if auto-balance would produce a valid pace
   const abPace = calcAutoBalancePace(baseSegments, autoBalanceIdxs, targetSec);
   const abValid = abPace >= paceMin && abPace <= paceMax;
@@ -189,9 +200,14 @@ export default function PaceSliders({
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
           Split Paces
         </p>
-        <p className="text-[10px] text-slate-600">
-          avg {formatPace(targetPaceSec, unit)}/{unit === 'km' ? 'km' : 'mi'}
-        </p>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] text-slate-600">
+            HM <span className="font-mono text-slate-500">{formatDuration(hmSec)}</span>
+          </span>
+          <span className="text-[10px] text-slate-600">
+            avg {formatPace(targetPaceSec, unit)}/{unit === 'km' ? 'km' : 'mi'}
+          </span>
+        </div>
       </div>
 
       {/* Auto-balance toggle — only visible in custom mode */}

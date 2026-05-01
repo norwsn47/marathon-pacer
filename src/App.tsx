@@ -21,7 +21,7 @@ import PaceChart from './components/PaceChart';
 import PaceSliders from './components/PaceSliders';
 import SummaryCard from './components/SummaryCard';
 
-const DEFAULT_TARGET = 3 * 3600;
+const DEFAULT_TARGET = 3 * 3600 + 50 * 60;
 
 export default function App() {
   const [targetSec, setTargetSec] = useState(DEFAULT_TARGET);
@@ -146,7 +146,7 @@ export default function App() {
           <div className="sm:hidden">
             <QuoteBanner />
           </div>
-          <TargetTime targetSec={targetSec} projectedSec={projectedSec} onChange={handleTargetChange} />
+          <TargetTime targetSec={targetSec} projectedSec={projectedSec} unit={unit} onChange={handleTargetChange} />
           <StrategyPresets
             strategy={strategy}
             negativePct={negativePct}
